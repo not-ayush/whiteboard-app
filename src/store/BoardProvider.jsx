@@ -2,9 +2,8 @@ import React from "react";
 import BoardContext from "./board-context";
 import { TA_STATES, TOOLS, TOOL_ACTIONS } from "../constants";
 import { useReducer } from "react";
-import rough from "roughjs/bin/rough";
+import { createNewElement } from "../util/util";
 
-const gen = rough.generator();
 const boardReducer = (state, action) => {
   switch (action.type) {
     case TOOL_ACTIONS.CHANGE_TOOL:
@@ -16,28 +15,21 @@ const boardReducer = (state, action) => {
       const prevElements = state.elements;
       let cX = action.payload.clientX;
       let cY = action.payload.clientY;
-      const newElem = {
-        id: prevElements.length,
-        x1: cX,
-        y1: cY,
-        x2: cX,
-        y2: cY,
-        roughElem: gen.line(cX, cY, cX, cY),
-      };
+      const newElem = createNewElement(prevElements.length, cX, cY, cX, cY, { type: state.activeToolItem });
       return { ...state, toolActionState: TA_STATES.DRAWING, elements: [...prevElements, newElem] };
     }
     case TOOL_ACTIONS.DRAW_MOVE: {
       const curElements = [...state.elements];
       let elemLen = curElements.length;
-      // if (elemLen == 0) return state;
       const lastElem = curElements[elemLen - 1];
       let cX = action.payload.clientX;
       let cY = action.payload.clientY;
-      (lastElem.x2 = cX), (lastElem.y2 = cY), (lastElem.roughElem = gen.line(lastElem.x1, lastElem.y1, cX, cY));
+      const newElem = createNewElement(curElements.length, lastElem.x1, lastElem.y1, cX, cY, { type: state.activeToolItem });
+      curElements[elemLen - 1] = newElem;
 
       return {
         ...state,
-        elements: curElements,
+        elements: [...curElements],
       };
     }
     case TOOL_ACTIONS.DRAW_UP: {

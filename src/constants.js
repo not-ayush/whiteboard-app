@@ -1,6 +1,7 @@
 export const TOOLS = {
   LINE: "LINE",
   ARROW: "ARROW",
+  RECTANGLE: "RECTANGLE",
 };
 
 export const TOOL_ACTIONS = {
