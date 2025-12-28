@@ -1,18 +1,18 @@
 import React from "react";
 import BoardContext from "./board-context";
-import TOOLS from "../constants";
+import { TA_STATES, TOOLS, TOOL_ACTIONS } from "../constants";
 import { useReducer } from "react";
 import rough from "roughjs/bin/rough";
 
 const gen = rough.generator();
 const boardReducer = (state, action) => {
   switch (action.type) {
-    case "CHANGE_TOOL":
+    case TOOL_ACTIONS.CHANGE_TOOL:
       return {
         ...state,
         activeToolItem: action.payload.tool,
       };
-    case "DRAW_DOWN": {
+    case TOOL_ACTIONS.DRAW_DOWN: {
       const prevElements = state.elements;
       let cX = action.payload.clientX;
       let cY = action.payload.clientY;
@@ -24,7 +24,27 @@ const boardReducer = (state, action) => {
         y2: cY,
         roughElem: gen.line(cX, cY, cX, cY),
       };
-      return { ...state, elements: [...prevElements, newElem] };
+      return { ...state, toolActionState: TA_STATES.DRAWING, elements: [...prevElements, newElem] };
+    }
+    case TOOL_ACTIONS.DRAW_MOVE: {
+      const curElements = [...state.elements];
+      let elemLen = curElements.length;
+      // if (elemLen == 0) return state;
+      const lastElem = curElements[elemLen - 1];
+      let cX = action.payload.clientX;
+      let cY = action.payload.clientY;
+      (lastElem.x2 = cX), (lastElem.y2 = cY), (lastElem.roughElem = gen.line(lastElem.x1, lastElem.y1, cX, cY));
+
+      return {
+        ...state,
+        elements: curElements,
+      };
+    }
+    case TOOL_ACTIONS.DRAW_UP: {
+      return {
+        ...state,
+        toolActionState: TA_STATES.NONE,
+      };
     }
     default:
       return state;
@@ -33,6 +53,7 @@ const boardReducer = (state, action) => {
 
 const initialBoardState = {
   activeToolItem: TOOLS.LINE,
+  toolActionState: TA_STATES.NONE,
   elements: [],
 };
 
@@ -41,7 +62,7 @@ const BoardProvider = ({ children }) => {
 
   const handleToolItemClick = (tool) => {
     dispatchBoardAction({
-      type: "CHANGE_TOOL",
+      type: TOOL_ACTIONS.CHANGE_TOOL,
       payload: {
         tool,
       },
@@ -50,7 +71,7 @@ const BoardProvider = ({ children }) => {
 
   const handleMouseDown = (event) => {
     dispatchBoardAction({
-      type: "DRAW_DOWN",
+      type: TOOL_ACTIONS.DRAW_DOWN,
       payload: {
         clientX: event.clientX,
         clientY: event.clientY,
@@ -58,11 +79,32 @@ const BoardProvider = ({ children }) => {
     });
   };
 
+  const handleMouseMove = (event) => {
+    if (boardState.toolActionState == TA_STATES.DRAWING) {
+      dispatchBoardAction({
+        type: TOOL_ACTIONS.DRAW_MOVE,
+        payload: {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        },
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    dispatchBoardAction({
+      type: TOOL_ACTIONS.DRAW_UP,
+    });
+  };
+
   const boardContextVal = {
     activeToolItem: boardState.activeToolItem,
-    elements: [],
+    elements: boardState.elements,
+    // toolActionState: boardState.toolActionState,
     handleToolItemClick,
     handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
   };
 
   return <BoardContext.Provider value={boardContextVal}>{children}</BoardContext.Provider>;

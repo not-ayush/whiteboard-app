@@ -3,7 +3,7 @@ import cx from "classnames";
 import classes from "./index.module.css";
 import { FaSlash, FaArrowRight } from "react-icons/fa";
 import BoardContext from "../../store/board-context";
-import TOOLS from "../../constants";
+import { TOOLS } from "../../constants";
 
 const Toolbar = () => {
   const { activeToolItem, handleToolItemClick } = useContext(BoardContext);

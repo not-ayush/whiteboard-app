@@ -7,9 +7,7 @@ import BoardContext from "../../store/board-context";
 
 const Board = () => {
   const canvasRef = useRef();
-  const { elements, handleMouseDown } = useContext(BoardContext);
-  console.log(elements);
-  console.log("test");
+  const { elements, handleMouseDown, handleMouseMove, handleMouseUp } = useContext(BoardContext);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,7 +29,7 @@ const Board = () => {
     };
   }, [elements]);
 
-  return <canvas ref={canvasRef} onMouseDown={handleMouseDown} />;
+  return <canvas ref={canvasRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} />;
 };
 
 export default Board;

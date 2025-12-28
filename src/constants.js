@@ -1,7 +1,18 @@
-const TOOLS = {
+export const TOOLS = {
   LINE: "LINE",
   ARROW: "ARROW",
 };
 
-export default TOOLS;
+export const TOOL_ACTIONS = {
+  CHANGE_TOOL: "CHANGE_TOOL",
+  DRAW_DOWN: "DRAW_DOWN",
+  DRAW_UP: "DRAW_UP",
+  DRAW_MOVE: "DRAW_MOVE",
+  CHANGE_TA: "CHANGE_TA_STATE",
+};
+
+export const TA_STATES = {
+  NONE: "NONE",
+  DRAWING: "DRAWING",
+};
 
