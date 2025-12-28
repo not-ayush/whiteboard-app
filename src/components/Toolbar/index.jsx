@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import cx from "classnames";
 import classes from "./index.module.css";
 import { FaSlash, FaArrowRight } from "react-icons/fa";
+import BoardContext from "../../store/board-context";
+import TOOLS from "../../constants";
 
 const Toolbar = () => {
-  const [activeToolItem, setActiveTool] = useState("LINE");
+  const { activeToolItem, handleToolItemClick } = useContext(BoardContext);
   return (
     <div className={classes.container}>
-      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === "LINE" })} onClick={() => setActiveTool("LINE")}>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.LINE })} onClick={() => handleToolItemClick(TOOLS.LINE)}>
         <FaSlash />
       </div>
-      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === "ARROW" })} onClick={() => setActiveTool("ARROW")}>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.ARROW })} onClick={() => handleToolItemClick(TOOLS.ARROW)}>
         <FaArrowRight />
       </div>
     </div>
