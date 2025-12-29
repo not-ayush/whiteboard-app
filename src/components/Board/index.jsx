@@ -1,5 +1,5 @@
 import React from "react";
-import { useRef, useEffect, useContext } from "react";
+import { useRef, useEffect, useContext, useLayoutEffect } from "react";
 import rough from "roughjs";
 
 import BoardContext from "../../store/board-context";
@@ -15,7 +15,7 @@ const Board = () => {
     canvas.height = window.innerHeight;
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     context.save();

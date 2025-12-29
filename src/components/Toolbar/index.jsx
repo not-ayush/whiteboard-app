@@ -20,6 +20,12 @@ const Toolbar = () => {
       >
         <LuRectangleHorizontal />
       </div>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.CIRCLE })} onClick={() => handleToolItemClick(TOOLS.CIRCLE)}>
+        <FaRegCircle />
+      </div>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.ARROW })} onClick={() => handleToolItemClick(TOOLS.ARROW)}>
+        <FaArrowRight />
+      </div>
     </div>
   );
 };
