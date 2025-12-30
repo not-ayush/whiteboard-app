@@ -5,13 +5,13 @@ import BoardProvider from "./store/BoardProvider";
 import ToolboxProvider from "./store/ToolboxProvider";
 function App() {
   return (
-    <BoardProvider>
-      <ToolboxProvider>
+    <ToolboxProvider>
+      <BoardProvider>
         <Toolbar />
         <Toolbox />
         <Board />
-      </ToolboxProvider>
-    </BoardProvider>
+      </BoardProvider>
+    </ToolboxProvider>
   );
 }
 

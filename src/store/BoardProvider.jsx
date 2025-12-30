@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import BoardContext from "./board-context";
+import ToolboxContext from "./toolbox-context";
 import { TA_STATES, TOOLS, TOOL_ACTIONS } from "../constants";
 import { useReducer } from "react";
 import { createNewElement } from "../util/util";
@@ -15,7 +16,14 @@ const boardReducer = (state, action) => {
       const prevElements = state.elements;
       let cX = action.payload.clientX;
       let cY = action.payload.clientY;
-      const newElem = createNewElement(prevElements.length, cX, cY, cX, cY, { type: state.activeToolItem });
+      const toolboxState = action.payload.toolboxState;
+      const options = {
+        type: state.activeToolItem,
+        stroke: toolboxState[state.activeToolItem]?.stroke,
+        fill: toolboxState[state.activeToolItem]?.fill,
+        size: toolboxState[state.activeToolItem]?.size,
+      };
+      const newElem = createNewElement(prevElements.length, cX, cY, cX, cY, options);
       return { ...state, toolActionState: TA_STATES.DRAWING, elements: [...prevElements, newElem] };
     }
     case TOOL_ACTIONS.DRAW_MOVE: {
@@ -24,7 +32,10 @@ const boardReducer = (state, action) => {
       const lastElem = curElements[elemLen - 1];
       let cX = action.payload.clientX;
       let cY = action.payload.clientY;
-      const newElem = createNewElement(curElements.length, lastElem.x1, lastElem.y1, cX, cY, { type: state.activeToolItem });
+      const options = {
+        ...lastElem.options,
+      };
+      const newElem = createNewElement(curElements.length, lastElem.x1, lastElem.y1, cX, cY, options);
       curElements[elemLen - 1] = newElem;
 
       return {
@@ -50,6 +61,7 @@ const initialBoardState = {
 };
 
 const BoardProvider = ({ children }) => {
+  const { toolboxState } = useContext(ToolboxContext);
   const [boardState, dispatchBoardAction] = useReducer(boardReducer, initialBoardState);
 
   const handleToolItemClick = (tool) => {
@@ -65,6 +77,7 @@ const BoardProvider = ({ children }) => {
     dispatchBoardAction({
       type: TOOL_ACTIONS.DRAW_DOWN,
       payload: {
+        toolboxState,
         clientX: event.clientX,
         clientY: event.clientY,
       },

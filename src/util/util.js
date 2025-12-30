@@ -4,19 +4,20 @@ import { getArrowHeadsCoors } from "./math";
 
 const gen = rough.generator();
 
-export const createNewElement = (id, x1, y1, x2, y2, { type }) => {
+export const createNewElement = (id, x1, y1, x2, y2, options) => {
   let newRoughElem;
-  switch (type) {
+  // console.log(options);
+  switch (options.type) {
     case TOOLS.LINE:
-      newRoughElem = gen.line(x1, y1, x2, y2, { seed: id + 1 });
+      newRoughElem = gen.line(x1, y1, x2, y2, { seed: id + 1, strokeWidth: options.size, stroke: options.stroke });
       break;
     case TOOLS.RECTANGLE:
-      newRoughElem = gen.rectangle(x1, y1, x2 - x1, y2 - y1, { seed: id + 1 });
+      newRoughElem = gen.rectangle(x1, y1, x2 - x1, y2 - y1, { seed: id + 1, strokeWidth: options.size, stroke: options.stroke, fill: options.fill });
       break;
     case TOOLS.CIRCLE: {
       let cx = (x1 + x2) / 2;
       let cy = (y1 + y2) / 2;
-      newRoughElem = gen.ellipse(cx, cy, x2 - x1, y2 - y1, { seed: id + 1 });
+      newRoughElem = gen.ellipse(cx, cy, x2 - x1, y2 - y1, { seed: id + 1, strokeWidth: options.size, stroke: options.stroke, fill: options.fill });
       break;
     }
     case TOOLS.ARROW: {
@@ -44,6 +45,7 @@ export const createNewElement = (id, x1, y1, x2, y2, { type }) => {
     x2,
     y2,
     roughElem: newRoughElem,
+    options,
   };
   return newElem;
 };
