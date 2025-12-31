@@ -4,6 +4,7 @@ export const TOOLS = {
   RECTANGLE: "RECTANGLE",
   CIRCLE: "CIRCLE",
   TEXT: "TEXT",
+  BRUSH: "BRUSH",
 };
 
 export const TOOLBOX_ACTIONS = {

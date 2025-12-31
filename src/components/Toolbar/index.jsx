@@ -11,6 +11,9 @@ const Toolbar = () => {
   const { activeToolItem, handleToolItemClick } = useContext(BoardContext);
   return (
     <div className={classes.container}>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.BRUSH })} onClick={() => handleToolItemClick(TOOLS.BRUSH)}>
+        <FaPaintBrush />
+      </div>
       <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.LINE })} onClick={() => handleToolItemClick(TOOLS.LINE)}>
         <FaSlash />
       </div>

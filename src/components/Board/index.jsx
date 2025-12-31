@@ -3,12 +3,12 @@ import { useRef, useEffect, useContext, useLayoutEffect } from "react";
 import rough from "roughjs";
 
 import BoardContext from "../../store/board-context";
+import { TOOLS } from "../../constants";
 // import classes from "./index.module.css";
 
 const Board = () => {
   const canvasRef = useRef();
   const { elements, handleMouseDown, handleMouseMove, handleMouseUp } = useContext(BoardContext);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
@@ -21,7 +21,24 @@ const Board = () => {
     context.save();
     let roughCanvas = rough.canvas(canvas);
     elements.forEach((elem) => {
-      roughCanvas.draw(elem.roughElem);
+      // need to do switch case for handling brush
+      switch (elem.options.type) {
+        case TOOLS.LINE:
+        case TOOLS.RECTANGLE:
+        case TOOLS.CIRCLE:
+        case TOOLS.ARROW: {
+          roughCanvas.draw(elem.drawableElem);
+          break;
+        }
+        case TOOLS.BRUSH: {
+          context.fillStyle = elem.options.stroke;
+          context.fill(elem.drawableElem);
+          context.restore();
+          break;
+        }
+        default:
+          throw new Error("tool not recognized");
+      }
     });
 
     return () => {

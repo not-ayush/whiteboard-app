@@ -3,7 +3,8 @@ import BoardContext from "./board-context";
 import ToolboxContext from "./toolbox-context";
 import { TA_STATES, TOOLS, TOOL_ACTIONS } from "../constants";
 import { useReducer } from "react";
-import { createNewElement } from "../util/util";
+import { createNewElement, getSvgPathFromStroke } from "../util/util";
+import getStroke from "perfect-freehand";
 
 const boardReducer = (state, action) => {
   switch (action.type) {
@@ -22,26 +23,52 @@ const boardReducer = (state, action) => {
         stroke: toolboxState[state.activeToolItem]?.stroke,
         fill: toolboxState[state.activeToolItem]?.fill,
         size: toolboxState[state.activeToolItem]?.size,
+        points: [{ x: cX, y: cY }], // used for brush
       };
       const newElem = createNewElement(prevElements.length, cX, cY, cX, cY, options);
       return { ...state, toolActionState: TA_STATES.DRAWING, elements: [...prevElements, newElem] };
     }
     case TOOL_ACTIONS.DRAW_MOVE: {
-      const curElements = [...state.elements];
-      let elemLen = curElements.length;
-      const lastElem = curElements[elemLen - 1];
-      let cX = action.payload.clientX;
-      let cY = action.payload.clientY;
-      const options = {
-        ...lastElem.options,
-      };
-      const newElem = createNewElement(curElements.length, lastElem.x1, lastElem.y1, cX, cY, options);
-      curElements[elemLen - 1] = newElem;
+      switch (state.activeToolItem) {
+        case TOOLS.LINE:
+        case TOOLS.RECTANGLE:
+        case TOOLS.CIRCLE:
+        case TOOLS.ARROW: {
+          const curElements = [...state.elements];
+          let elemLen = curElements.length;
+          const lastElem = curElements[elemLen - 1];
+          let cX = action.payload.clientX;
+          let cY = action.payload.clientY;
+          const options = {
+            ...lastElem.options,
+          };
+          const newElem = createNewElement(curElements.length, lastElem.x1, lastElem.y1, cX, cY, options);
+          curElements[elemLen - 1] = newElem;
 
-      return {
-        ...state,
-        elements: [...curElements],
-      };
+          return {
+            ...state,
+            elements: [...curElements],
+          };
+        }
+        case TOOLS.BRUSH: {
+          /* 
+          add new point to element.options.points array 
+          */
+          const curElements = [...state.elements];
+          let elemLen = curElements.length;
+          let cX = action.payload.clientX;
+          let cY = action.payload.clientY;
+          const lastElem = curElements[elemLen - 1];
+          const points = [...lastElem.options.points, { x: cX, y: cY }];
+          lastElem.options.points = points;
+          lastElem.drawableElem = new Path2D(getSvgPathFromStroke(getStroke(points)));
+          return {
+            ...state,
+            elements: [...curElements],
+          };
+        }
+      }
+      break;
     }
     case TOOL_ACTIONS.DRAW_UP: {
       return {
