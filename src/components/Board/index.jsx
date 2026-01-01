@@ -1,18 +1,28 @@
 import React from "react";
 import { useRef, useEffect, useContext, useLayoutEffect } from "react";
 import rough from "roughjs";
-
+import classes from "./index.module.css";
 import BoardContext from "../../store/board-context";
-import { TOOLS } from "../../constants";
+import { TA_STATES, TOOLS } from "../../constants";
 
 const Board = () => {
   const canvasRef = useRef();
-  const { elements, handleMouseDown, handleMouseMove, handleMouseUp } = useContext(BoardContext);
+  const { toolActionState, elements, handleMouseDown, handleMouseMove, handleMouseUp, hanldeTextAreaOnBlur } = useContext(BoardContext);
   useEffect(() => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }, []);
+
+  const textAreaRef = useRef();
+  useEffect(() => {
+    if (toolActionState == TA_STATES.WRITING) {
+      const textarea = textAreaRef.current;
+      setTimeout(() => {
+        textarea.focus();
+      }, 0);
+    }
+  }, [toolActionState]);
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -34,6 +44,14 @@ const Board = () => {
           context.restore();
           break;
         }
+        case TOOLS.TEXT: {
+          context.textBaseline = "top";
+          context.font = `${elem.options.size}px Arial`;
+          context.fillStyle = elem.options.stroke;
+          context.fillText(elem.options.text, elem.x2, elem.y2);
+          context.restore();
+          break;
+        }
         default:
           throw new Error("tool not recognized");
       }
@@ -44,7 +62,27 @@ const Board = () => {
     };
   }, [elements]);
 
-  return <canvas id="canvas" ref={canvasRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} />;
+  return (
+    <>
+      {toolActionState == TA_STATES.WRITING && (
+        <textarea
+          type="text"
+          className={classes.textElementBox}
+          ref={textAreaRef}
+          style={{
+            top: elements[elements.length - 1].y2,
+            left: elements[elements.length - 1].x2,
+            fontSize: `${elements[elements.length - 1]?.options?.size}px`,
+            color: elements[elements.length - 1]?.options?.stroke,
+          }}
+          onBlur={(event) => {
+            hanldeTextAreaOnBlur(event.target.value);
+          }}
+        />
+      )}
+      <canvas id="canvas" ref={canvasRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} />;
+    </>
+  );
 };
 
 export default Board;

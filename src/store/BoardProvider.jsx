@@ -28,10 +28,11 @@ const boardReducer = (state, action) => {
         stroke: toolboxState[curTool]?.stroke,
         fill: toolboxState[curTool]?.fill,
         size: toolboxState[curTool]?.size,
-        points: [{ x: cX, y: cY }], // used for brush
       };
+      if (curTool == TOOLS.BRUSH) options.points = [{ x: cX, y: cY }];
+      if (curTool == TOOLS.TEXT) options.text = "";
       const newElem = createNewElement(prevElements.length, cX, cY, cX, cY, options);
-      return { ...state, toolActionState: TA_STATES.HOLDING, elements: [...prevElements, newElem] };
+      return { ...state, toolActionState: curTool == TOOLS.TEXT ? TA_STATES.WRITING : TA_STATES.HOLDING, elements: [...prevElements, newElem] };
     }
     case TOOL_ACTIONS.DRAW_MOVE: {
       switch (state.activeToolItem) {
@@ -73,10 +74,10 @@ const boardReducer = (state, action) => {
           const curElements = [...state.elements];
           let cX = action.payload.clientX;
           let cY = action.payload.clientY;
-          const newElemnts = curElements.filter((elem) => {
+          const newElements = curElements.filter((elem) => {
             return !isPointNearElem(elem, cX, cY);
           });
-          return { ...state, elements: newElemnts };
+          return { ...state, elements: newElements };
         }
       }
       break;
@@ -84,6 +85,17 @@ const boardReducer = (state, action) => {
     case TOOL_ACTIONS.DRAW_UP: {
       return {
         ...state,
+        toolActionState: TA_STATES.NONE,
+      };
+    }
+    case TOOL_ACTIONS.CHANGE_TEXT: {
+      const curElements = [...state.elements];
+      let elemLen = curElements.length;
+      const lastElem = curElements[elemLen - 1];
+      lastElem.options.text = action.payload.text;
+      return {
+        ...state,
+        elements: curElements,
         toolActionState: TA_STATES.NONE,
       };
     }
@@ -112,6 +124,9 @@ const BoardProvider = ({ children }) => {
   };
 
   const handleMouseDown = (event) => {
+    if (boardState.toolActionState == TA_STATES.WRITING) {
+      return;
+    }
     dispatchBoardAction({
       type: TOOL_ACTIONS.DRAW_DOWN,
       payload: {
@@ -135,18 +150,31 @@ const BoardProvider = ({ children }) => {
   };
 
   const handleMouseUp = () => {
+    if (boardState.toolActionState != TA_STATES.WRITING) {
+      dispatchBoardAction({
+        type: TOOL_ACTIONS.DRAW_UP,
+      });
+    }
+  };
+
+  const hanldeTextAreaOnBlur = (text) => {
     dispatchBoardAction({
-      type: TOOL_ACTIONS.DRAW_UP,
+      type: TOOL_ACTIONS.CHANGE_TEXT,
+      payload: {
+        text,
+      },
     });
   };
 
   const boardContextVal = {
     activeToolItem: boardState.activeToolItem,
+    toolActionState: boardState.toolActionState,
     elements: boardState.elements,
     handleToolItemClick,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
+    hanldeTextAreaOnBlur,
   };
 
   return <BoardContext.Provider value={boardContextVal}>{children}</BoardContext.Provider>;

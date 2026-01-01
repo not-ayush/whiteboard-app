@@ -49,6 +49,10 @@ const ToolboxProvider = ({ children }) => {
       stroke: COLORS.BLACK,
       size: 1,
     },
+    [TOOLS.TEXT]: {
+      stroke: COLORS.BLACK,
+      size: 32,
+    },
   };
   const [toolboxState, dispatchToolboxAction] = useReducer(toolboxReducer, intialToolboxState);
 

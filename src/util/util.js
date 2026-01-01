@@ -80,6 +80,10 @@ export const createNewElement = (id, x1, y1, x2, y2, options) => {
       newDrawableElem = new Path2D(pathData);
       break;
     }
+    case TOOLS.TEXT: {
+      // no drawable element needed
+      break;
+    }
     default:
       throw new Error("tool not recognized");
   }
