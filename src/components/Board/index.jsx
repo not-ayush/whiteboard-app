@@ -4,7 +4,6 @@ import rough from "roughjs";
 
 import BoardContext from "../../store/board-context";
 import { TOOLS } from "../../constants";
-// import classes from "./index.module.css";
 
 const Board = () => {
   const canvasRef = useRef();
@@ -21,7 +20,6 @@ const Board = () => {
     context.save();
     let roughCanvas = rough.canvas(canvas);
     elements.forEach((elem) => {
-      // need to do switch case for handling brush
       switch (elem.options.type) {
         case TOOLS.LINE:
         case TOOLS.RECTANGLE:
@@ -46,7 +44,7 @@ const Board = () => {
     };
   }, [elements]);
 
-  return <canvas ref={canvasRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} />;
+  return <canvas id="canvas" ref={canvasRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} />;
 };
 
 export default Board;

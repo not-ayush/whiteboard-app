@@ -35,11 +35,8 @@ export function getSvgPathFromStroke(points, closed = true) {
   return result;
 }
 
-// options object for element stores every additional info about the element
-// for brush this includes the array of points, so options.points is that array
 export const createNewElement = (id, x1, y1, x2, y2, options) => {
   let newDrawableElem;
-  // console.log(options);
   switch (options.type) {
     case TOOLS.LINE:
       newDrawableElem = gen.line(x1, y1, x2, y2, { seed: id + 1, strokeWidth: options.size, stroke: options.stroke });

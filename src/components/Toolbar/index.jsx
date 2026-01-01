@@ -29,6 +29,9 @@ const Toolbar = () => {
       <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.ARROW })} onClick={() => handleToolItemClick(TOOLS.ARROW)}>
         <FaArrowRight />
       </div>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.ERASE })} onClick={() => handleToolItemClick(TOOLS.ERASE)}>
+        <FaEraser />
+      </div>
     </div>
   );
 };

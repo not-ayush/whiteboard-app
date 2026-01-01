@@ -4,6 +4,7 @@ import ToolboxContext from "./toolbox-context";
 import { TA_STATES, TOOLS, TOOL_ACTIONS } from "../constants";
 import { useReducer } from "react";
 import { createNewElement, getSvgPathFromStroke } from "../util/util";
+import { isPointNearElem } from "../util/math";
 import getStroke from "perfect-freehand";
 
 const boardReducer = (state, action) => {
@@ -17,16 +18,20 @@ const boardReducer = (state, action) => {
       const prevElements = state.elements;
       let cX = action.payload.clientX;
       let cY = action.payload.clientY;
+      const curTool = state.activeToolItem;
+      if (curTool == TOOLS.ERASE) {
+        return { ...state, toolActionState: TA_STATES.HOLDING };
+      }
       const toolboxState = action.payload.toolboxState;
       const options = {
-        type: state.activeToolItem,
-        stroke: toolboxState[state.activeToolItem]?.stroke,
-        fill: toolboxState[state.activeToolItem]?.fill,
-        size: toolboxState[state.activeToolItem]?.size,
+        type: curTool,
+        stroke: toolboxState[curTool]?.stroke,
+        fill: toolboxState[curTool]?.fill,
+        size: toolboxState[curTool]?.size,
         points: [{ x: cX, y: cY }], // used for brush
       };
       const newElem = createNewElement(prevElements.length, cX, cY, cX, cY, options);
-      return { ...state, toolActionState: TA_STATES.DRAWING, elements: [...prevElements, newElem] };
+      return { ...state, toolActionState: TA_STATES.HOLDING, elements: [...prevElements, newElem] };
     }
     case TOOL_ACTIONS.DRAW_MOVE: {
       switch (state.activeToolItem) {
@@ -51,9 +56,6 @@ const boardReducer = (state, action) => {
           };
         }
         case TOOLS.BRUSH: {
-          /* 
-          add new point to element.options.points array 
-          */
           const curElements = [...state.elements];
           let elemLen = curElements.length;
           let cX = action.payload.clientX;
@@ -66,6 +68,15 @@ const boardReducer = (state, action) => {
             ...state,
             elements: [...curElements],
           };
+        }
+        case TOOLS.ERASE: {
+          const curElements = [...state.elements];
+          let cX = action.payload.clientX;
+          let cY = action.payload.clientY;
+          const newElemnts = curElements.filter((elem) => {
+            return !isPointNearElem(elem, cX, cY);
+          });
+          return { ...state, elements: newElemnts };
         }
       }
       break;
@@ -112,7 +123,7 @@ const BoardProvider = ({ children }) => {
   };
 
   const handleMouseMove = (event) => {
-    if (boardState.toolActionState == TA_STATES.DRAWING) {
+    if (boardState.toolActionState == TA_STATES.HOLDING) {
       dispatchBoardAction({
         type: TOOL_ACTIONS.DRAW_MOVE,
         payload: {
@@ -132,7 +143,6 @@ const BoardProvider = ({ children }) => {
   const boardContextVal = {
     activeToolItem: boardState.activeToolItem,
     elements: boardState.elements,
-    // toolActionState: boardState.toolActionState,
     handleToolItemClick,
     handleMouseDown,
     handleMouseMove,
