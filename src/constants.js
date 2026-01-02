@@ -6,6 +6,8 @@ export const TOOLS = {
   TEXT: "TEXT",
   BRUSH: "BRUSH",
   ERASE: "ERASE",
+  UNDO: "UNDO",
+  REDO: "REDO",
 };
 
 export const TOOLBOX_ACTIONS = {
@@ -31,6 +33,8 @@ export const TOOL_ACTIONS = {
   DRAW_MOVE: "DRAW_MOVE",
   CHANGE_TA: "CHANGE_TA_STATE",
   CHANGE_TEXT: "CHANGE_TEXT",
+  UNDO: "UNDO",
+  REDO: "REDO",
 };
 
 export const TA_STATES = {

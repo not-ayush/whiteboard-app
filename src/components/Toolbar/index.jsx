@@ -8,7 +8,17 @@ import BoardContext from "../../store/board-context";
 import { TOOLS } from "../../constants";
 
 const Toolbar = () => {
-  const { activeToolItem, handleToolItemClick } = useContext(BoardContext);
+  const { activeToolItem, handleToolItemClick, handleUndo, handleRedo } = useContext(BoardContext);
+
+  const handleDownload = () => {
+    const canvasElem = document.getElementById("canvas");
+    const data = canvasElem.toDataURL("image/jpg");
+    const anchor = document.createElement("a");
+    anchor.href = data;
+    anchor.download = "board.png";
+    anchor.click();
+  };
+
   return (
     <div className={classes.container}>
       <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.BRUSH })} onClick={() => handleToolItemClick(TOOLS.BRUSH)}>
@@ -34,6 +44,15 @@ const Toolbar = () => {
       </div>
       <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.TEXT })} onClick={() => handleToolItemClick(TOOLS.TEXT)}>
         <FaFont />
+      </div>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.UNDO })} onClick={handleUndo}>
+        <FaUndoAlt />
+      </div>
+      <div className={cx(classes.toolItem, { [classes.active]: activeToolItem === TOOLS.REDO })} onClick={handleRedo}>
+        <FaRedoAlt />
+      </div>
+      <div className={cx(classes.toolItem)} onClick={handleDownload}>
+        <FaDownload />
       </div>
     </div>
   );

@@ -47,6 +47,7 @@ export const createNewElement = (id, x1, y1, x2, y2, options) => {
         strokeWidth: options.size,
         stroke: options.stroke,
         fill: options.fill,
+        fillStyle: "solid",
       });
       break;
     case TOOLS.CIRCLE: {
@@ -57,6 +58,7 @@ export const createNewElement = (id, x1, y1, x2, y2, options) => {
         strokeWidth: options.size,
         stroke: options.stroke,
         fill: options.fill,
+        fillStyle: "solid",
       });
       break;
     }

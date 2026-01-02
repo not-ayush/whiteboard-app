@@ -7,7 +7,8 @@ import { TA_STATES, TOOLS } from "../../constants";
 
 const Board = () => {
   const canvasRef = useRef();
-  const { toolActionState, elements, handleMouseDown, handleMouseMove, handleMouseUp, hanldeTextAreaOnBlur } = useContext(BoardContext);
+  const { toolActionState, elements, handleMouseDown, handleMouseMove, handleMouseUp, hanldeTextAreaOnBlur, handleRedo, handleUndo } =
+    useContext(BoardContext);
   useEffect(() => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
@@ -23,6 +24,22 @@ const Board = () => {
       }, 0);
     }
   }, [toolActionState]);
+
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      if (event.ctrlKey && event.key === "z") {
+        handleUndo();
+      } else if (event.ctrlKey && event.key === "y") {
+        handleRedo();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeydown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeydown);
+    };
+  }, [handleRedo, handleUndo]);
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;

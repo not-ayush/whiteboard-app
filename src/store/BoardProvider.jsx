@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import BoardContext from "./board-context";
 import ToolboxContext from "./toolbox-context";
 import { TA_STATES, TOOLS, TOOL_ACTIONS } from "../constants";
@@ -32,7 +32,12 @@ const boardReducer = (state, action) => {
       if (curTool == TOOLS.BRUSH) options.points = [{ x: cX, y: cY }];
       if (curTool == TOOLS.TEXT) options.text = "";
       const newElem = createNewElement(prevElements.length, cX, cY, cX, cY, options);
-      return { ...state, toolActionState: curTool == TOOLS.TEXT ? TA_STATES.WRITING : TA_STATES.HOLDING, elements: [...prevElements, newElem] };
+      const curElements = [...prevElements, newElem];
+      return {
+        ...state,
+        toolActionState: curTool == TOOLS.TEXT ? TA_STATES.WRITING : TA_STATES.HOLDING,
+        elements: [...curElements],
+      };
     }
     case TOOL_ACTIONS.DRAW_MOVE: {
       switch (state.activeToolItem) {
@@ -77,14 +82,21 @@ const boardReducer = (state, action) => {
           const newElements = curElements.filter((elem) => {
             return !isPointNearElem(elem, cX, cY);
           });
-          return { ...state, elements: newElements };
+          const newHistory = state.history.slice(0, state.index + 1);
+          newHistory.push(newElements);
+          return { ...state, history: newHistory, index: newHistory.length - 1, elements: newElements };
         }
       }
       break;
     }
     case TOOL_ACTIONS.DRAW_UP: {
+      const curElements = [...state.elements];
+      const newHistory = state.history.slice(0, state.index + 1);
+      newHistory.push(curElements);
       return {
         ...state,
+        history: newHistory,
+        index: newHistory.length - 1,
         toolActionState: TA_STATES.NONE,
       };
     }
@@ -93,10 +105,30 @@ const boardReducer = (state, action) => {
       let elemLen = curElements.length;
       const lastElem = curElements[elemLen - 1];
       lastElem.options.text = action.payload.text;
+      const newHistory = state.history.slice(0, state.index + 1);
+      newHistory.push(curElements);
       return {
         ...state,
         elements: curElements,
+        history: newHistory,
+        index: newHistory.length - 1,
         toolActionState: TA_STATES.NONE,
+      };
+    }
+    case TOOL_ACTIONS.UNDO: {
+      if (state.index - 1 < 0) return state;
+      return {
+        ...state,
+        elements: state.history[state.index - 1],
+        index: state.index - 1,
+      };
+    }
+    case TOOL_ACTIONS.REDO: {
+      if (state.index + 1 >= state.history.length) return state;
+      return {
+        ...state,
+        elements: state.history[state.index + 1],
+        index: state.index + 1,
       };
     }
     default:
@@ -108,6 +140,8 @@ const initialBoardState = {
   activeToolItem: TOOLS.LINE,
   toolActionState: TA_STATES.NONE,
   elements: [],
+  history: [[]],
+  index: 0,
 };
 
 const BoardProvider = ({ children }) => {
@@ -150,7 +184,8 @@ const BoardProvider = ({ children }) => {
   };
 
   const handleMouseUp = () => {
-    if (boardState.toolActionState != TA_STATES.WRITING) {
+    if (boardState.toolActionState == TA_STATES.WRITING) return;
+    if (boardState.toolActionType === TA_STATES.DRAWING) {
       dispatchBoardAction({
         type: TOOL_ACTIONS.DRAW_UP,
       });
@@ -166,6 +201,18 @@ const BoardProvider = ({ children }) => {
     });
   };
 
+  const handleUndo = useCallback(() => {
+    dispatchBoardAction({
+      type: TOOL_ACTIONS.UNDO,
+    });
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    dispatchBoardAction({
+      type: TOOL_ACTIONS.REDO,
+    });
+  }, []);
+
   const boardContextVal = {
     activeToolItem: boardState.activeToolItem,
     toolActionState: boardState.toolActionState,
@@ -175,6 +222,8 @@ const BoardProvider = ({ children }) => {
     handleMouseMove,
     handleMouseUp,
     hanldeTextAreaOnBlur,
+    handleUndo,
+    handleRedo,
   };
 
   return <BoardContext.Provider value={boardContextVal}>{children}</BoardContext.Provider>;

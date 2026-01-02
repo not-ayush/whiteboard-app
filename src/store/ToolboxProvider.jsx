@@ -38,12 +38,12 @@ const ToolboxProvider = ({ children }) => {
     [TOOLS.RECTANGLE]: {
       stroke: COLORS.BLACK,
       size: 1,
-      fill: COLORS.WHITE,
+      fill: null,
     },
     [TOOLS.CIRCLE]: {
       stroke: COLORS.BLACK,
       size: 1,
-      fill: COLORS.WHITE,
+      fill: null,
     },
     [TOOLS.BRUSH]: {
       stroke: COLORS.BLACK,

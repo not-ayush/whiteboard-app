@@ -54,7 +54,20 @@ export const isPointNearElem = (element, pointX, pointY) => {
         isPointCloseToLine(x1, y2, x1, y1, pointX, pointY)
       );
     case TOOLS.BRUSH:
-      return context.isPointInPath(element.path, pointX, pointY);
+      return context.isPointInPath(element.drawableElem, pointX, pointY);
+    case TOOLS.TEXT: {
+      context.font = `${element.options.size}px Arial`;
+      context.fillStyle = element.options.stroke;
+      const textWidth = context.measureText(element.options.text).width;
+      const textHeight = parseInt(element.options.size);
+      context.restore();
+      return (
+        isPointCloseToLine(x1, y1, x1 + textWidth, y1, pointX, pointY) ||
+        isPointCloseToLine(x1 + textWidth, y1, x1 + textWidth, y1 + textHeight, pointX, pointY) ||
+        isPointCloseToLine(x1 + textWidth, y1 + textHeight, x1, y1 + textHeight, pointX, pointY) ||
+        isPointCloseToLine(x1, y1 + textHeight, x1, y1, pointX, pointY)
+      );
+    }
     default:
       throw new Error("Type not recognized");
   }
