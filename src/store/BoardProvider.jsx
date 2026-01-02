@@ -82,9 +82,7 @@ const boardReducer = (state, action) => {
           const newElements = curElements.filter((elem) => {
             return !isPointNearElem(elem, cX, cY);
           });
-          const newHistory = state.history.slice(0, state.index + 1);
-          newHistory.push(newElements);
-          return { ...state, history: newHistory, index: newHistory.length - 1, elements: newElements };
+          return { ...state, elements: newElements };
         }
       }
       break;
@@ -105,13 +103,9 @@ const boardReducer = (state, action) => {
       let elemLen = curElements.length;
       const lastElem = curElements[elemLen - 1];
       lastElem.options.text = action.payload.text;
-      const newHistory = state.history.slice(0, state.index + 1);
-      newHistory.push(curElements);
       return {
         ...state,
         elements: curElements,
-        history: newHistory,
-        index: newHistory.length - 1,
         toolActionState: TA_STATES.NONE,
       };
     }
